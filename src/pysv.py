@@ -298,9 +298,40 @@ class Svinfo:
                     self.defs[key] = groups[2]
 
 
-    #-------------------- def getKeys(self)
-    def getKeys(self):
-        return self.defs.keys()
+    #-------------------- def getKeys(self, filter_paths=None)
+    def getKeys(self, filter_paths=None):
+        if not filter_paths:
+            return self.defs.keys()
+        else:
+            return [ k for k in self.defs if str(self.defs[k]) in filter_paths ]
+
+
+    #-------------------- def getFullPaths(self)
+    def getFullPaths(self):
+        keys = self.getKeys()
+        paths = [ self.getKey(k) for k in keys ]
+        return paths
+
+
+    #-------------------- def check(self, format='svinfo')
+    def check(self, format='svinfo'):
+        paths = self.getFullPaths()
+        inexistent_paths = []
+        for path in paths:
+            if not path.exists():
+                inexistent_paths.append(str(path))
+
+        if format == 'svinfo':
+            nb_shortcuts = len(inexistent_paths)
+            if nb_shortcuts == 0:
+                print("Aucun raccourci cassé n'a été trouvé dans le fichier '{}'.".format(self.svinfo_file))
+            else:
+                s = nb_shortcuts > 1 and 's' or ''
+                print("Trouvé {} raccourci{s} cassé{s} dans le fichier '{}':".format(nb_shortcuts, self.svinfo_file, s=s))
+                print(self.getDump(filter_paths=inexistent_paths, prefix='  '))
+        elif format == 'get_keys':
+            for k in self.getKeys(filter_paths=inexistent_paths):
+                print(k)
 
 
     #-------------------- def getShortcutPath(self, keyword_path)
@@ -317,10 +348,12 @@ class Svinfo:
         return os.path.relpath(path, self.project_dir)
 
 
-    #-------------------- def getShortcutsByPath(self)
-    def getShortcutsByPath(self):
+    #-------------------- def getShortcutsByPath(self, filter_paths=None)
+    def getShortcutsByPath(self, filter_paths=None):
         paths = {}
         for key, path in self.defs.items():
+            if filter_paths and path not in filter_paths:
+                continue
             if path not in paths:
                 paths[path] = []
             paths[path].append(key)
@@ -425,8 +458,10 @@ class Svinfo:
         return dump
 
 
-    #-------------------- def getJsonDump(self)
-    def getJsonDump(self):
+    #-------------------- def getJsonDump(self, filter_paths=None)
+    def getJsonDump(self, filter_paths=None):
+        # TODO: filter_paths
+
         import json
 
         data = { item[0] : str(self.project_dir / item[1]) for item in self.defs.items() }
@@ -435,15 +470,17 @@ class Svinfo:
         return json.dumps(data);
 
 
-    #-------------------- def getDump(self, absolute=False, json=False)
-    def getDump(self, absolute=False, json=False):
+    #-------------------- def getDump(self, absolute=False, json=False, ....)
+    def getDump(self, absolute=False, json=False, filter_paths=None, prefix=''):
         # TODO: gérer absolute
         if json:
-            return self.getJsonDump()
+            return self.getJsonDump(filter_paths=filter_paths)
+
+        shorcuts_by_path = self.getShortcutsByPath(filter_paths=filter_paths)
+
+        dump = ''
 
         margin = 2  # Marge minimum pour l'alignement de la 1ère colonne
-
-        shorcuts_by_path = self.getShortcutsByPath()
 
         # Pour l'alignement:
         max_col1_width = 0
@@ -452,10 +489,10 @@ class Svinfo:
             if max_col1_width < shortcuts_strlen:
                 max_col1_width = shortcuts_strlen
 
-        dump = ''
         for path, shortcuts in shorcuts_by_path.items():
             if len(dump) != 0:
                 dump += '\n'
+            dump += prefix
             shortcuts_str = ','.join(shortcuts)
             dump += shortcuts_str
             # Pour l'alignement:
@@ -496,6 +533,8 @@ def create_parser(short_help=False):
              "Avec l'option '-u', affiche les chemins complets vers ces raccourcis.")
     parser.add_argument('--get-keys', action='store_true',
         help="Affiche la liste de tous les noms de raccourci existants")
+    parser.add_argument('--check', action='store_true',
+        help="Vérifie l'existence des chemins de chaque raccourci et affiche les problèmes trouvés")
     parser.add_argument('-p', '--get-project-dir', action='store_true',
         help="Affiche le chemin racine où se trouve le fichier .svinfo trouvé (ou précisé, cf option -L)")
     parser.add_argument('-s', '--search', nargs='?', metavar='PATH', const='.',
@@ -623,6 +662,11 @@ if __name__ == '__main__':
 
         if   args.get_project_dir : print(svinfo.project_dir)
         elif args.get_svinfo_file : print(svinfo.svinfo_file)
+        elif args.check:
+            format = 'svinfo'
+            if args.get_keys:
+                format = 'get_keys'
+            svinfo.check(format=format)
         else:
             if svinfo.error: raise svinfo.error
 
