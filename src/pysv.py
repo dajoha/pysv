@@ -283,10 +283,13 @@ class Svinfo:
 
     #-------------------- def parseSvinfo(self)
     def parseSvinfo(self):
+        blank_line = re.compile('^\s*$')
         line_pattern = re.compile('^([a-zA-Zéèàêùïà_,][a-zA-Zéèàêùïà0-9_,]*)\s+(?:(\?)\s+)?(.+)$')
         self.defs = {}
         with open(str(self.svinfo_file), 'r') as infile:
             for line_nr, line in enumerate(infile, 1):
+                if blank_line.match(line) != None:
+                    continue
                 match = line_pattern.match(line)
                 if match == None:
                     raise PysvError("Erreur de parse du fichier '{}', ligne {}".format(self.svinfo_file, line_nr))
