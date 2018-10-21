@@ -312,6 +312,8 @@ Dans chaque fichier, les paramètres suivant peuvent être définis:
 
 - `BashVarsEnable` (`yes`/`no`) : spécifie si des variables doivent être générées ou non
 - `BashVarsTemplate` : définit le template à utiliser pour les noms de variable (cf. plus bas)
+- `BashVarsRootName` : définit le nom d'une variable qui fournira le chemin racine du projet (utile
+  seulement pour `sv`: pour `cv` le chemin serait toujours le dossier `$HOME`)
 - `BashAliasesEnable` (`yes`/`no`) : spécifie si des alias doivent être générés ou non
 - `BashAliasesTemplate` : définit le template à utiliser pour les noms d'alias (cf. plus bas)
 
@@ -351,18 +353,15 @@ génèrera des noms d'alias du type `,,UB,,`, `,,FOO,,` ...
 
 ## (Alias et variables bash) Configuration par défaut = possibilité de "tuilage"!!
 
-Par défaut et pour rester simple, la configuration par défaut est la même pour `sv.conf` et
-`cv.conf`:
+Par défaut et pour rester simple, la configuration des templates par défaut est la même pour
+`sv.conf` et `cv.conf`:
 
-	BashVarsEnable = yes             <-- Variables: Autorise la génération de variables
-	BashVarsTemplate = (name)        <-- Variables: Template pour les noms de variable
-	BashAliasesEnable = yes          <-- Alias: Autorise la génération d'aliases
-	BashAliasesTemplate = ,(name)    <-- Alias: Template pour les noms d'alias
+	BashVarsTemplate = (name)        <-- Template pour les noms de variable
+	BashAliasesTemplate = ,(name)    <-- Template pour les noms d'alias
 
-Puisque cette configuration est commune, les templates le sont aussi; cela signifie qu'en utilisant
-les commandes `sv` *et* `cv` durant la même session bash, des variables et alias de même nom peuvent
-se tuiler et interférer, dans le cas où ils ont été définis globalement *ainsi* qu'au sein d'un
-projet.
+Cela signifie qu'en utilisant les commandes `sv` *et* `cv` durant la même session bash, des
+variables et alias de même nom peuvent se tuiler et interférer, dans le cas où ils ont été définis
+globalement *ainsi* qu'au sein d'un projet.
 
 Exemple montrant les problèmes de "tuilage":
 
@@ -384,4 +383,7 @@ Exemple montrant les problèmes de "tuilage":
 	/home/bob/myproj/util
 	~/myproj $ cv; echo $u
 	/usr
+
+La solution à ce problème est simplement de personnaliser les fichiers `~/.pysv/sv.conf` et
+`~/.pysv/cv.conf`, afin que leurs templates ne collisionnent pas.
 

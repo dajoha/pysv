@@ -103,6 +103,7 @@ class BSOptions:
         # --bs-conf:
         self.vars_templ    = '(name)'
         self.aliases_templ = ',(name)'
+        self.root_name = None
 
         if args.bs_conf:
             self.parseConf(args.bs_conf)
@@ -111,6 +112,7 @@ class BSOptions:
         if args.bs_include_aliases: self.include_aliases = isYes(args.bs_include_aliases)
         if args.bs_vars_templ:      self.vars_templ      = args.bs_vars_templ
         if args.bs_aliases_templ:   self.aliases_templ   = args.bs_aliases_templ
+        if args.bs_vars_root_name:  self.root_name       = args.bs_vars_root_name
 
         self.include_cd = args.bs_include_cd
 
@@ -132,9 +134,10 @@ class BSOptions:
 
                     varname, value = match.group(1, 2)
 
-                    if   varname == 'BashVarsEnable':     self.include_vars = isYes(value)
+                    if   varname == 'BashVarsEnable':      self.include_vars = isYes(value)
                     elif varname == 'BashVarsTemplate':    self.vars_templ = value
-                    elif varname == 'BashAliasesEnable':  self.include_aliases = isYes(value)
+                    elif varname == 'BashVarsRootName':    self.root_name = value
+                    elif varname == 'BashAliasesEnable':   self.include_aliases = isYes(value)
                     elif varname == 'BashAliasesTemplate': self.aliases_templ = value
 
         except FileNotFoundError as e:
@@ -452,7 +455,13 @@ class Svinfo:
         if opts.include_aliases:
             root_alias = opts.transform_alias('')
             if len(root_alias) != 0:
+                # TODO: ci-dessous:   self.project_dir ==> shlex.quote(self.project_dir)  ?
                 dump += "alias {}='cd {}'\n".format(root_alias, self.project_dir)
+
+        if opts.include_vars:
+            quoted_path = shlex.quote(str(self.project_dir))
+            if opts.root_name != None:
+                dump += "{}={}\n".format(opts.root_name, quoted_path)
 
         if opts.include_cd and args.keyword:
             path = shlex.quote(str(self.getShortcutPath(args.keyword)))
@@ -570,12 +579,16 @@ def create_parser(short_help=False):
         parser.add_argument('--bs-conf', metavar='CONFFILE',
             help="Utilise un fichier de config pour remplacer --bs-vars-templ, --bs-aliases-templs, "+
                  "ainsi que l'argument fourni à --get-bash-script")
+
         parser.add_argument('--bs-vars-templ', metavar='TEMPLATE',
             help="Définit le patron pour générer les noms de variable bash")
-        parser.add_argument('--bs-aliases-templ', metavar='TEMPLATE',
-            help="Définit le patron pour générer les noms d'alias bash")
         parser.add_argument('--bs-include-vars', metavar='VAL',
             help="Indique s'il faut inclure les variable bash")
+        parser.add_argument('--bs-vars-root-name', metavar='VARNAME', default=None,
+            help="Spécifie un nom de variable à définir pour le chemin racine du projet")
+
+        parser.add_argument('--bs-aliases-templ', metavar='TEMPLATE',
+            help="Définit le patron pour générer les noms d'alias bash")
         parser.add_argument('--bs-include-aliases', metavar='VAL',
             help="Indique s'il faut inclure les alias bash")
         parser.add_argument('--bs-include-cd', action='store_true',
