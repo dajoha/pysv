@@ -238,8 +238,8 @@ légèrement transformables (casse, préfixe, suffixe, cf. plus bas), afin de po
 
 Par défaut:
 
-	- les variables générées portent le nom de leur raccourci
-	- les alias générés portent le nom de leur raccourci, préfixé par une virgule
+	* les variables générées portent le nom de leur raccourci
+	* les alias générés portent le nom de leur raccourci, préfixé par une virgule
 
 Par exemple, par défaut un raccourci global `ub` => `/usr/bin` génèrera l'équivalent des deux
 commandes bash suivantes:
