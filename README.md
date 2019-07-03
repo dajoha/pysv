@@ -1,10 +1,12 @@
 pysv  v0.01
 ===========
 
-Permet de gérer facilement des raccourcis vers des dossiers ou des fichiers. Ces raccourcis sont
-utilisables via des commandes shell intégrées.
-Des raccourcis peuvent être définis soit globalement pour un utilisateur, soit localement au sein
-d'un projet spécifique.
+Permet de gérer facilement des raccourcis vers des dossiers ou des fichiers.
+Ces raccourcis sont utilisables via des commandes shell.
+
+Des raccourcis peuvent être définis:
+ * soit globalement (pour un utilisateur donné),
+ * soit au sein d'un projet spécifique.
 
 
 Fonctionnalités
@@ -12,12 +14,12 @@ Fonctionnalités
 
 * Déplacement rapide vers des raccourcis utilisateur
 
-* Création, suppression, listage et recherche des raccourcis
+* Création, suppression, listing et recherche des raccourcis
 
-* Possibilité de créer automatiquement des aliases et des variables bash portant le nom (adaptable)
+* Possibilité de créer automatiquement des alias et des variables bash portant le nom (adaptable)
   de chaque raccourci, ce qui permet de faciliter l'accès à tous les répertoires usuels
 
-* Possibilité de générer des données json décrivant les raccourcis actuels
+* Génération de données json décrivant les raccourcis actuels
 
 * La portée des raccourcis peut être:
  - soit globale (commande `cv`, cherchant le fichier `$HOME/.svinfo.global`)
@@ -53,14 +55,16 @@ Ajoutez les lignes suivantes dans `~/.bashrc`:
 	PYSV_PARSE_CONF=1
 	cv >/dev/null 2>&1   # Crée les alias et variables de raccourcis globaux dès le chargement
 
-Relancez une nouvelle session bash afin de commencer à utiliser les commandes `cv` et `sv`.
+Relancez une nouvelle session bash afin de commencer à utiliser les commandes `cv` et `sv`:
+
+	$ exec bash
 
 
 
 COMMANDE `cv` (raccourcis globaux)
 ===========================================
 
-La commande `cv` permet de manipuler des raccourcis globaux facilement.
+La commande `cv` permet de manipuler des raccourcis globaux.
 
 
 ## Ajouter un raccourci
@@ -135,7 +139,7 @@ COMMANDE `sv` (raccourcis par projet)
 
 La commande `sv` permet de manipuler des raccourcis vers des répertoires locaux, au sein d'un projet
 spécifique. Lorsque le répertoire courant se situe au sein d'un projet préalablement initialisé, il
-est possible d'accéder à n'importe quel sous répertoire à l'aide d'un raccourci.
+est possible d'accéder à n'importe quel sous-répertoire à l'aide d'un raccourci.
 
 
 ## Prérequis: initialiser un fichier de raccourcis au sein d'un projet
@@ -232,7 +236,8 @@ Les noms de ces alias et variables sont apparentés au nom de base du raccourci,
 légèrement transformables (casse, préfixe, suffixe, cf. plus bas), afin de pouvoir contrôler les
 éventuels conflits que cela pourrait générer avec d'autres alias/variables existant(e)s.
 
-Par défaut,
+Par défaut:
+
 	- les variables générées portent le nom de leur raccourci
 	- les alias générés portent le nom de leur raccourci, préfixé par une virgule
 
@@ -274,7 +279,7 @@ sans paramètre:
  - Si des paramètres sont donnés, cela génèrera également les alias et variables, tout en effectuant
    les actions demandées. Exemple:
 
-    ~ $ cv ub    # Génère les alias globaux et les variables globales, puis va dans /usr/bin.
+	~ $ cv ub    # Génère les alias globaux et les variables globales, puis va dans /usr/bin.
 	/usr/bin $
 
 À chaque fois que `cv` ou `sv` est invoqué, les alias et variables correspondants sont (re)générés
