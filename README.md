@@ -44,20 +44,38 @@ Cela installera les fichiers suivants:
 
 ## Configuration dans .bashrc
 
-Ajoutez les lignes suivantes dans `~/.bashrc`:
+Ajoutez la ligne suivante dans votre `~/.bashrc`:
 
-	# Création des commandes:
-	. /usr/local/lib/pysv/bash/sv.sh   # Commandes bash 'sv' et 'sva'
-	. /usr/local/lib/pysv/bash/cv.sh   # Commandes bash 'cv' et 'cva'
+	. /usr/local/lib/pysv/pysv_load --full
 
-	# Facultatif: Autoriser la lecture des fichiers de configuration, et donc la
-	#             création automatique d'alias et de variables pour chaque raccourci:
-	PYSV_PARSE_CONF=1
-	cv >/dev/null 2>&1   # Crée les alias et variables de raccourcis globaux dès le chargement
-
-Relancez une nouvelle session bash afin de commencer à utiliser les commandes `cv` et `sv`:
+*NOTE*: pour profiter immédiatement des fonctionnalités, rechargez la session bash:
 
 	$ exec bash
+
+
+
+GUIDE RAPIDE D'UTILISATION:
+===========================================
+
+## Raccourcis globaux
+
+	$ cd /usr/bin
+	/usr/bin $ cva ub         # <== AJOUTER LE RACCOURCI 'ub' VERS '/usr/bin'
+	/usr/bin $ cd /etc
+	/etc $ cv ub              # <== ALLER VERS '/usr/bin' GRÂCE AU NOUVEAU RACCOURCI
+	/usr/bin $
+
+## Raccourcis par projet
+
+	$ cd /myproject
+	/myproject $ sv -I        # <== INITIALISATION DU PROJET POUR PYSV
+	Fichier .svinfo initialisé dans le dossier courant.
+	/myproject $ cd src
+	/myproject/src $ sva s    # <== AJOUTER LE RACCOURCI 's' VERS '[PROJECT_ROOT]/src'
+	Raccourci 's => src' ajouté.
+	/myproject/src $ sv /     # <== ALLER À LA RACINE DU PROJET PYSV
+	/myproject $ sv s         # <== ALLER VERS '[PROJECT_ROOT]/src' GRÂCE AU NOUVEAU RACCOURCI
+	/myproject/src $
 
 
 
@@ -74,11 +92,11 @@ Exemple: créer un racourci pour le répertoire global `/usr/bin`:
 	~ $ cd /usr/bin
 	/usr/bin $ cv -A <RACCOURCI>
 
-Ou plus rapidement:
+Ou pour un répertoire donné:
 
 	~ $ cv -A <RACCOURCI> /usr/bin
 
-L'alias `cva` est également fourni pour simplifier encore davantage:
+L'alias `cva` est également fourni:
 
 	~ $ cva <RACCOURCI> /usr/bin
 
@@ -147,15 +165,15 @@ est possible d'accéder à n'importe quel sous-répertoire à l'aide d'un raccou
 Avant de pouvoir exploiter la commande `sv`, il faut d'abord créer un fichier `.svinfo` à la racine
 du projet souhaité.
 
-Pour cela, placez-vous à la racine du projet et lancez `sv --init` (ou `sv -I`):
+Pour cela, placez-vous à la racine du projet et lancez `sv -I`:
 
 	~ $ cd ~/myproj
-	~/myproj $ sv --init
+	~/myproj $ sv -I
 	Fichier .svinfo initialisé dans le dossier courant.
 
-Ou plus rapidement:
+Ou pour un répertoire donné:
 
-	~ $ sv --init ~/myproj
+	~ $ sv -I ~/myproj
 	Fichier .svinfo initialisé dans le dossier /home/bob/myproj.
 
 
@@ -182,7 +200,7 @@ cible `~/myproj/src`, et elle a donc ajouté le raccourci `s` au projet concern�
 courant (`~`) soit externe au projet.
 
 
-## Utiliser un raccourci existant
+## Aller vers un raccourci existant
 
 Exemple: utiliser le raccourci `s` précédemment créé:
 
@@ -218,7 +236,7 @@ Exemple: supprimer le raccourci `s`:
 	~ $ sv -s [DIR]
 
 
-## Chercher le nom du fichier .svinfo correspondant à un projet
+## Afficher le nom du fichier .svinfo correspondant à un projet
 
 	~ $ sv -i
 	/home/bob/myproj/.svinfo

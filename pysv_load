@@ -1,0 +1,13 @@
+
+# Création des commandes:
+. /usr/local/lib/pysv/bash/sv.sh   # Commandes bash 'sv' et 'sva'
+. /usr/local/lib/pysv/bash/cv.sh   # Commandes bash 'cv' et 'cva'
+
+# Facultatif: Autoriser la lecture des fichiers de configuration, et donc la
+#             création automatique d'alias et de variables pour chaque raccourci:
+if [ $1 = --full ]; then
+	PYSV_PARSE_CONF=1
+	cv >/dev/null 2>&1   # Crée les alias et variables de raccourcis globaux dès le chargement
+fi
+
+# vim: ft=sh

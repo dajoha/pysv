@@ -20,12 +20,13 @@ lib=$prefix/lib/$projname
 mkdir -p $bin      || exit 1
 
 echo "Copie des fichiers:"
-for dir in bash default_config; do
-	mkdir -p $lib/$dir
+for subdir in bash default_config; do
+	mkdir -p $lib/$subdir
 	for tool in sv cv; do
-		cp -v ./$dir/$tool.* $lib/$dir     || exit 1
+		cp -v ./$subdir/$tool.* $lib/$subdir  || exit 1
 	done
 done
+cp -v ./pysv_load $lib                        || exit 1
 
 mkdir -p $lib/src  || exit 1
 cp -v ./src/pysv.py $lib/src/pysv.py          || exit 1
