@@ -27,10 +27,16 @@ function sv()
 }
 
 
-
 #-------------------- function sva()
 function sva()
 {
+	if [[ $1 == -h ]]; then
+		echo "Usage: sva <KEY> [PATH]"
+		echo "Raccourci pour sv -a: ajoute le raccourci de projet <KEY> pour le répertoire"
+		echo "courant, ou pour [PATH] si précisé."
+		return
+	fi
+
 	sv -a "$@" || return
 	sv # TODO: à améliorer (double exécution)
 }
