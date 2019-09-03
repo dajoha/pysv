@@ -57,7 +57,6 @@ class NameTransformer:
     #-------------------- def __init__(self, template)
     def __init__(self, template):
         try:
-
             open_paren = template.index('(')
             close_paren = template.index(')')
 
@@ -72,11 +71,11 @@ class NameTransformer:
                 raise(PysvError("nom de patron entre parenthèses '{}'".format(self.templ_name)))
 
             if self.templ_name.isupper():
-                self.case_tranform = self.upperAll
+                self.case_transform = self.upperAll
             elif self.templ_name[0].isupper():
-                self.case_tranform = self.upperFirstLetter
+                self.case_transform = self.upperFirstLetter
             else:
-                self.case_tranform = self.noTransform
+                self.case_transform = self.noTransform
 
         except Exception as e:
             pysv_msg = isinstance(e, PysvError) and " ({})".format(e) or ''
@@ -88,7 +87,7 @@ class NameTransformer:
 
     #-------------------- def transform(self, name)
     def transform(self, name):
-        return self.prefix + self.case_tranform(name) + self.suffix
+        return self.prefix + self.case_transform(name) + self.suffix
 
 
 
@@ -229,6 +228,7 @@ class SviPath:
                     files = svi_path.listDir()
                     files = [ svi_path.path + f for f in files ]
                     completions.extend(files)
+
         except Exception as e:
             pass
 
@@ -531,72 +531,200 @@ def create_parser(short_help=False):
         add_help = False,
     )
 
-    parser.add_argument('keyword', metavar='KEY', nargs='?', default='',
+
+    # NON-OPTION ARGUMENT:
+
+    parser.add_argument(
+        'keyword',
+        metavar='KEY',
+        nargs='?',
+        default='',
         help="Raccourci désignant un chemin soit local à un un projet, soit dépendant de l'option -L")
 
-    parser.add_argument('-i', '--get-svinfo-file', action='store_true',
+
+    # OPTIONS FOR GETTING INFORMATION:
+
+    parser.add_argument(
+        '-i',
+        '--get-svinfo-file',
+        action='store_true',
         help="Affiche le chemin vers le fichier .svinfo trouvé (ou précisé, cf option -L)")
-    parser.add_argument('-C', '--directory', metavar='PATH',
+
+    parser.add_argument(
+        '-C',
+        '--directory',
+        metavar='PATH',
         help="Exécute pysv comme si PATH était le répertoire courant")
-    parser.add_argument('-L', '--svinfo-path', metavar='PATH',
+
+    parser.add_argument(
+        '-L',
+        '--svinfo-path',
+        metavar='PATH',
         help="Choisit un fichier svinfo particulier au lieu de chercher dans l'arborescence courante")
-    parser.add_argument('-l', '--list', nargs='*', metavar='KEY',
+
+    parser.add_argument(
+        '-l',
+        '--list',
+        nargs='*',
+        metavar='KEY',
         help="Affiche les raccourcis actuels (contenu du fichier .svinfo trouvé). "+
              "Avec l'option '-u', affiche les chemins complets vers ces raccourcis.")
-    parser.add_argument('--get-keys', action='store_true',
+
+    parser.add_argument(
+        '--get-keys',
+        action='store_true',
         help="Affiche la liste de tous les noms de raccourci existants")
-    parser.add_argument('--check', action='store_true',
+
+    parser.add_argument(
+        '--check',
+        action='store_true',
         help="Vérifie l'existence des chemins de chaque raccourci et affiche les problèmes trouvés")
-    parser.add_argument('-p', '--get-project-dir', action='store_true',
+
+    parser.add_argument(
+        '-p',
+        '--get-project-dir',
+        action='store_true',
         help="Affiche le chemin racine où se trouve le fichier .svinfo trouvé (ou précisé, cf option -L)")
-    parser.add_argument('-s', '--search', nargs='?', metavar='PATH', const='.',
+
+    parser.add_argument(
+        '-s',
+        '--search',
+        nargs='?',
+        metavar='PATH',
+        const='.',
         help="Cherche le répertoire courant (ou le répertoire indiqué PATH) dans les raccourcis")
 
-    parser.add_argument('-a', '--add', nargs='+', metavar='KEY',
+
+
+    # OPTIONS FOR MODIFYING THINGS:
+
+    parser.add_argument(
+        '-a',
+        '--add',
+        nargs='+',
+        metavar='KEY',
         help="Ajoute un mot-clé pour le répertoire courant")
-    parser.add_argument('-A', '--add-absolute', nargs='+', metavar='KEY',
+
+    parser.add_argument(
+        '-A',
+        '--add-absolute',
+        nargs='+',
+        metavar='KEY',
         help="Ajoute un mot-clé pour le répertoire courant, avec un chemin absolu (équivalent de -ua)")
-    parser.add_argument('-r', '--remove', nargs='+', metavar='KEY',
+
+    parser.add_argument(
+        '-r',
+        '--remove',
+        nargs='+',
+        metavar='KEY',
         help="Supprime des raccourcis")
-    parser.add_argument('-I', '--init', nargs='?', metavar='PATH', const='.',
+
+    parser.add_argument(
+        '-I',
+        '--init',
+        nargs='?',
+        metavar='PATH',
+        const='.',
         help="Initialise un fichier .svinfo dans le répertoire courant (ou le répertoire "+
              "PATH donné). Équivalent de la commande linux 'touch .svinfo'.")
 
-    parser.add_argument('-f', '--force', action='store_true',
+
+    # FLAG OPTIONS:
+
+    parser.add_argument(
+        '-f',
+        '--force',
+        action='store_true',
         help="Forcer l'écrasement des raccourcis existants avec -a ou -A")
-    parser.add_argument('-u', '--absolute', action='store_true',
+
+    parser.add_argument(
+        '-u',
+        '--absolute',
+        action='store_true',
         help="Pour l'option --add et --list: utilise des chemins absolus")
-    parser.add_argument('-j', '--json', action='store_true',
+
+    parser.add_argument(
+        '-j',
+        '--json',
+        action='store_true',
             help="Pour les options -l, --get-keys: affiche les informations au format json")
+
+
+    # OPTIONS THAT WILL BE HIDDEN IN THE SHORT HELP:
 
     if not short_help:
 
-        parser.add_argument('--get-completions', metavar='WORD',
+        # COMPLETION:
+
+        parser.add_argument(
+            '--get-completions',
+            metavar='WORD',
             help="Affiche la liste des complétions possibles pour le début de mot indiqué")
 
-        parser.add_argument('--bs-dump', action="store_true",
+
+        # BASH SCRIPT OPTIONS:
+
+        parser.add_argument(
+            '--bs-dump',
+            action="store_true",
             help="Affiche des commandes bash de génération d'aliases et de variables (argument interne)")
-        parser.add_argument('--bs-conf', metavar='CONFFILE',
+
+        parser.add_argument(
+            '--bs-conf',
+            metavar='CONFFILE',
             help="Utilise un fichier de config pour remplacer --bs-vars-templ, --bs-aliases-templs, "+
                  "ainsi que l'argument fourni à --get-bash-script")
 
-        parser.add_argument('--bs-vars-templ', metavar='TEMPLATE',
+
+        # BASH SCRIPT OPTIONS: VARIABLE OPTIONS:
+
+        parser.add_argument(
+            '--bs-vars-templ',
+            metavar='TEMPLATE',
             help="Définit le patron pour générer les noms de variable bash")
-        parser.add_argument('--bs-include-vars', metavar='VAL',
-            help="Indique s'il faut inclure les variable bash")
-        parser.add_argument('--bs-vars-root-name', metavar='VARNAME', default=None,
+
+        parser.add_argument(
+            '--bs-include-vars',
+            metavar='VAL',
+            help="Indique s'il faut inclure les variables bash")
+
+        parser.add_argument(
+            '--bs-vars-root-name',
+            metavar='VARNAME',
+            default=None,
             help="Spécifie un nom de variable à définir pour le chemin racine du projet")
 
-        parser.add_argument('--bs-aliases-templ', metavar='TEMPLATE',
+
+        # BASH SCRIPT OPTIONS: ALIAS OPTIONS:
+
+        parser.add_argument(
+            '--bs-aliases-templ',
+            metavar='TEMPLATE',
             help="Définit le patron pour générer les noms d'alias bash")
-        parser.add_argument('--bs-include-aliases', metavar='VAL',
+
+        parser.add_argument(
+            '--bs-include-aliases',
+            metavar='VAL',
             help="Indique s'il faut inclure les alias bash")
-        parser.add_argument('--bs-include-cd', action='store_true',
+
+        parser.add_argument(
+            '--bs-include-cd',
+            action='store_true',
             help="Ajoute au script bash une commande 'cd' pour l'alias donné")
 
-    parser.add_argument('-h', '--help', action='store_true',
+
+    # HELP:
+
+    parser.add_argument(
+        '-h',
+        '--help',
+        action='store_true',
         help="Affiche l'aide")
-    parser.add_argument('-H', '--more-help', action='store_true',
+
+    parser.add_argument(
+        '-H',
+        '--more-help',
+        action='store_true',
         help="Affiche l'aide complète")
 
     return parser
@@ -644,7 +772,6 @@ if __name__ == '__main__':
                         "Impossible d'initialiser: le fichier existe; utilisez "+
                         "l'option -f pour forcer la suppression de l'ancien fichier."
                     ))
-
                 svinfo_file.unlink()
 
             else:
@@ -653,7 +780,7 @@ if __name__ == '__main__':
                     raise(PysvError(
                         "Un fichier .svinfo a été trouvé en amont: {}\n".format(found_svinfo) +
                         "Utilisez l'option -f pour forcer une création imbriquée."
-                        ))
+                    ))
 
             svinfo_file.touch()
 
