@@ -167,36 +167,36 @@ du projet souhaité.
 
 Pour cela, placez-vous à la racine du projet et lancez `sv -I`:
 
-	~ $ cd ~/myproj
-	~/myproj $ sv -I
+	~ $ cd ~/MyProject
+	~/MyProject $ sv -I
 	Fichier .svinfo initialisé dans le dossier courant.
 
-Ou pour un répertoire donné:
+Ou pour un répertoire donné en paramètre:
 
-	~ $ sv -I ~/myproj
-	Fichier .svinfo initialisé dans le dossier /home/bob/myproj.
+	~ $ sv -I ~/MyProject
+	Fichier .svinfo initialisé dans le dossier /home/bob/MyProject.
 
 
 ## Ajouter un raccourci
 
 Exemple: créer le racourci `s` pour le répertoire `src`:
 
-	~ $ cd ~/myproj/src
-	~/myproj/src $ sv -a s
+	~ $ cd ~/MyProject/src
+	~/MyProject/src $ sv -a s
 	Raccourci 's => src' ajouté.
 
 Ou plus rapidement, en utilisant l'alias `sva`:
 
-	~ $ cd ~/myproj/src
-	~/myproj/src $ sva s
+	~ $ cd ~/MyProject/src
+	~/MyProject/src $ sva s
 
 Si on ne se situe pas dans le bon répertoire, on peut en donner un spécifique:
 
-	~ $ sv -a s ~/myproj/src
+	~ $ sv -a s ~/MyProject/src
 	Raccourci 's => src' ajouté.
 
-La commande ci-dessus a trouvé le projet `~/myproj` (précédemment initialisé) à la racine du dossier
-cible `~/myproj/src`, et elle a donc ajouté le raccourci `s` au projet concerné, bien que le dossier
+La commande ci-dessus a trouvé le projet `~/MyProject` (précédemment initialisé) à la racine du dossier
+cible `~/MyProject/src`, et elle a donc ajouté le raccourci `s` au projet concerné, bien que le dossier
 courant (`~`) soit externe au projet.
 
 
@@ -204,42 +204,47 @@ courant (`~`) soit externe au projet.
 
 Exemple: utiliser le raccourci `s` précédemment créé:
 
-	~/myproj/any/path $ sv s
-	~/myproj/src $
+	~/MyProject/any/path $ sv s
+	~/MyProject/src $
 
-Avec la configuration `.bashrc` proposée ci-dessus et une fois lancé `sv` au moins une fois, un
-alias rapide est aussi disponible, commençant par une virgule et portant le nom du raccourci, ainsi
-qu'une variable locale à la session:
+Avec la configuration `.bashrc` proposée ci-dessus, et une fois lancé `sv` au moins une fois:
 
-	~/myproj/any/path $ sv        <-- lance sv au moins une fois auparavant
-	~/myproj/any/path $ echo $s   <-- une variable du même nom que le racourci porte sa valeur
-	~/myproj/src
-	~myproj/any/path $ ,s         <-- alias équivalent à:  $ cd ~/myproj/src
-	~/myproj/src $
+ * un alias rapide est aussi disponible, commençant par une virgule et portant le nom du raccourci,
+ * ainsi qu'une variable locale à la session, portant simplement le nom du raccourci
+
+Exemple d'utilisation d'un alias rapide et d'une variable bash de raccourci:
+
+	~/MyProject/any/path $ sv        <-- lancer sv au moins une fois auparavant, dans un répertoire du projet
+
+	~/MyProject/any/path $ echo $s   <-- une variable du même nom que son raccourci contient son chemin
+	~/MyProject/src
+
+	~/MyProject/any/path $ ,s        <-- alias équivalent à:  $ cd ~/MyProject/src
+	~/MyProject/src $
 
 
 ## Supprimer un raccourci
 
 Exemple: supprimer le raccourci `s`:
 
-	~/myproj/any/path $ sv -r s
-	Raccourci 's => /home/bob/myproj/src' retiré.
+	~/MyProject/any/path $ sv -r s
+	Raccourci 's => /home/bob/MyProject/src' retiré.
 
 
 ## Lister les raccourcis
 
-	~ $ sv -l
+	~/MyProject $ sv -l
 
 
 ## Chercher un raccourci existant pour un répertoire donné
 
-	~ $ sv -s [DIR]
+	~/MyProject $ sv -s [DIR]
 
 
 ## Afficher le nom du fichier .svinfo correspondant à un projet
 
-	~ $ sv -i
-	/home/bob/myproj/.svinfo
+	~/MyProject/sub/path $ sv -i
+	/home/bob/MyProject/.svinfo
 
 
 
@@ -257,7 +262,7 @@ légèrement transformables (casse, préfixe, suffixe, cf. plus bas), afin de po
 Par défaut:
 
 * les variables générées portent le nom de leur raccourci
-* les alias générés portent le nom de leur raccourci, préfixé par une virgule
+* les alias générés portent le nom de leur raccourci préfixé par une virgule
 
 Par exemple, par défaut un raccourci global `ub` => `/usr/bin` génèrera l'équivalent des deux
 commandes bash suivantes:
@@ -297,7 +302,7 @@ sans paramètre:
  - Si des paramètres sont donnés, cela génèrera également les alias et variables, tout en effectuant
    les actions demandées. Exemple:
 
-	~ $ cv ub    # Génère les alias globaux et les variables globales, puis va dans /usr/bin.
+	~ $ cv ub    # (Re)génère les alias globaux et les variables globales, puis va dans /usr/bin.
 	/usr/bin $
 
 À chaque fois que `cv` ou `sv` est invoqué, les alias et variables correspondants sont (re)générés
@@ -331,7 +336,8 @@ Dans le répertoire créé, on trouve les fichiers:
 - `cv.conf`, qui contrôle le comportement de `cv`
 - `sv.conf`, qui contrôle le comportement de `sv`
 
-Dans chaque fichier, les paramètres suivant peuvent être définis:
+Dans chaque fichier, les paramètres suivant peuvent être définis, ou omis afin de garder
+leur valeur par défaut:
 
 - `BashVarsEnable` (`yes`/`no`) : spécifie si des variables doivent être générées ou non
 - `BashVarsTemplate` : définit le template à utiliser pour les noms de variable (cf. plus bas)
@@ -391,20 +397,20 @@ Exemple montrant les problèmes de "tuilage":
 	~ $ cva u /usr
 	Raccourci 'u => /usr' ajouté.
 
-	~ $ mkdir -p ~/myproj/util
-	~ $ cd ~/myproj
-	~/myproj $ sv --init
+	~ $ mkdir -p ~/MyProject/util
+	~ $ cd ~/MyProject
+	~/MyProject $ sv --init
 	Fichier .svinfo initialisé dans le dossier courant.
-	~/myproj $ sva u util
-	Raccourci 'u => /home/bob/myproj/util' ajouté.
+	~/MyProject $ sva u util
+	Raccourci 'u => /home/bob/MyProject/util' ajouté.
 
-	~/myproj $ sv; echo $u
-	/home/bob/myproj/util
-	~/myproj $ cv; echo $u
+	~/MyProject $ sv; echo $u
+	/home/bob/MyProject/util
+	~/MyProject $ cv; echo $u
 	/usr
-	~/myproj $ sv; echo $u
-	/home/bob/myproj/util
-	~/myproj $ cv; echo $u
+	~/MyProject $ sv; echo $u
+	/home/bob/MyProject/util
+	~/MyProject $ cv; echo $u
 	/usr
 
 La solution à ce problème est simplement de personnaliser les fichiers `~/.pysv/sv.conf` et
