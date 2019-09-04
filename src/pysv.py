@@ -761,6 +761,7 @@ if __name__ == '__main__':
         parser = create_parser()
         args = parser.parse_args(sys.argv[1:])
 
+        # Options -h and -H: Help
 
         if args.help:
             shorthelp_parser = create_parser(True)
@@ -771,10 +772,12 @@ if __name__ == '__main__':
             extra_help()
             sys.exit()
 
+        # Option -C / --directory: Change directory
 
         if args.directory:
             os.chdir(args.directory)
 
+        # Option -I / --init: Initialize a new svinfo project
 
         if args.init:
             init_path = args.init
@@ -804,12 +807,14 @@ if __name__ == '__main__':
 
             sys.exit()
 
+        # Option -A / --add-absolute: Add the current directory as an absolute path
 
         if args.add_absolute:
             args.absolute = True
             args.add = args.add_absolute
         possibly_create_file = bool(args.add)
 
+        # Option -g / --global: Use the global svinfo file (~/.svinfo.global)
 
         if args.is_global:
             standard_global_svinfo_path = Path(os.environ['HOME']) / GlobalSvinfoFilename
@@ -823,60 +828,101 @@ if __name__ == '__main__':
             raise(PysvError("Aucun projet trouvé"))
 
 
-        if   args.get_project_dir : print(svinfo.project_dir)
-        elif args.get_svinfo_file : print(svinfo.svinfo_file)
-        elif args.check:
+        # Option -p / --get-project-dir: Show the current base dir of the used svinfo file
+
+        if args.get_project_dir :
+            print(svinfo.project_dir)
+            sys.exit()
+
+        # Option -i / --get-svinfo-file: Show the used svinfo file
+
+        if args.get_svinfo_file :
+            print(svinfo.svinfo_file)
+            sys.exit()
+
+        # Option --check: Check the health of a svinfo file
+
+        if args.check:
             format = 'svinfo'
             if args.get_keys:
                 format = 'get_keys'
             svinfo.check(format=format)
-        else:
-            if svinfo.error: raise svinfo.error
+            sys.exit()
 
-            if args.list != None:
-                if args.list == []: print(svinfo.getDump(args.absolute, args.json))
-                else:
-                    if args.json:
-                        import json
-                        paths = [ str(svinfo.getKey(key, args.absolute)) for key in args.list ]
-                        print(json.dumps(paths))
-                    else:
-                        for key in args.list:
-                            print(svinfo.getKey(key, args.absolute))
 
-            elif args.get_completions != None:
-                print("\n".join(svinfo.getCompletions(args.get_completions)))
+        # Further options need no error about the used svinfo file:
 
-            elif args.add :
-                key, path = svinfo.do_add(args.add, args.absolute, args.force)
-                svinfo.save()
-                print("Raccourci '{} => {}' ajouté.".format(key, path))
+        if svinfo.error:
+            raise svinfo.error
 
-            elif args.remove :
-                for key in args.remove:
-                    path = svinfo.getShortcutPath(key)
-                    if svinfo.remove(key):
-                        svinfo.save()
-                        print("Raccourci '{} => {}' retiré.".format(key, path))
 
-            elif args.search:
-                keys = svinfo.searchForPath(args.search)
-                if not keys:
-                    raise(PysvError("Aucun raccourci trouvé pour ce dossier"))
-                else:
-                    print(','.join(keys))
+        # Option -l / --list: List shortcuts
 
-            elif args.get_keys:
+        if args.list != None:
+            if args.list == []:
+                print(svinfo.getDump(args.absolute, args.json))
+            else:
                 if args.json:
                     import json
-                    print(json.dumps(list(svinfo.getKeys())))
+                    paths = [ str(svinfo.getKey(key, args.absolute)) for key in args.list ]
+                    print(json.dumps(paths))
                 else:
-                    print('  '.join(svinfo.getKeys()))
-            elif args.bs_dump:
-                print(svinfo.getBashScriptDump(args))
-                sys.exit(2)
+                    for key in args.list:
+                        print(svinfo.getKey(key, args.absolute))
+            sys.exit()
+
+        # Option --get-completions: Get completions
+
+        if args.get_completions != None:
+            print("\n".join(svinfo.getCompletions(args.get_completions)))
+            sys.exit()
+
+        # Option -a / -add / -A / --add-absolute: Add a shortcut
+
+        if args.add:
+            key, path = svinfo.do_add(args.add, args.absolute, args.force)
+            svinfo.save()
+            print("Raccourci '{} => {}' ajouté.".format(key, path))
+            sys.exit()
+
+        # Option -r / --remove: Remove shortcuts
+
+        if args.remove:
+            for key in args.remove:
+                path = svinfo.getShortcutPath(key)
+                if svinfo.remove(key):
+                    svinfo.save()
+                    print("Raccourci '{} => {}' retiré.".format(key, path))
+            sys.exit()
+
+        # Option -s / --search: Search a path in existing shortcuts
+
+        if args.search:
+            keys = svinfo.searchForPath(args.search)
+            if not keys:
+                raise(PysvError("Aucun raccourci trouvé pour ce dossier"))
             else:
-                print(svinfo.getShortcutPath(args.keyword))
+                print(','.join(keys))
+            sys.exit()
+
+        # Option --get-keys: Show shortcut keys
+
+        if args.get_keys:
+            if args.json:
+                import json
+                print(json.dumps(list(svinfo.getKeys())))
+            else:
+                print('  '.join(svinfo.getKeys()))
+            sys.exit()
+
+        # Option --bs-dump: Dump bash script commands which define actual shortcuts
+        # All bash script options are handled in the getBashScriptDump() method:
+
+        if args.bs_dump:
+            print(svinfo.getBashScriptDump(args))
+            sys.exit(2)
+
+        print(svinfo.getShortcutPath(args.keyword))
 
     except PysvError as e:
         print(str(e), file=sys.stderr)
