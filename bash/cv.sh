@@ -1,19 +1,9 @@
 
-#-------------------- function __pysv_get_global_svinfo()
-function __pysv_get_global_svinfo()
-{
-	echo "${PYSV_GLOBAL_SVINFO-~/.svinfo.global}"
-}
-
-
 #-------------------- function cv()
 function cv()
 {
 	local config_dir=~/.pysv
-
-	local svinfo=$(__pysv_get_global_svinfo)
-
-	local options=( -L "$svinfo" )
+	local options=( --global )
 
 	if [[ $PYSV_PARSE_CONF == 1 ]]; then
 		local bs_conf=/usr/local/lib/pysv/default_config/cv.conf
@@ -45,12 +35,10 @@ function cva()
 #-------------------- function __pysv_cv_completion()
 function __pysv_cv_completion()
 {
-	local svinfo=$(__pysv_get_global_svinfo)
-
 	COMPREPLY=()
 	while read compl; do
 		COMPREPLY+=( "$compl" )
-	done < <(pysv -L $svinfo --get-completions "${COMP_WORDS[COMP_CWORD]}")
+	done < <(pysv --global --get-completions "${COMP_WORDS[COMP_CWORD]}")
 }
 
 complete -F __pysv_cv_completion  cv

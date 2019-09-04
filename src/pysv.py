@@ -12,8 +12,11 @@ import shlex
 # Nom du fichier à vérifier à chaque niveau de répertoire:
 SvinfoFilename = Path('.svinfo')
 
+# Nom du fichier svinfo global (à chercher dans le répertoire $HOME):
+GlobalSvinfoFilename = '.svinfo.global';
+
 # Noms de variables interdits lors de la génération des scripts bash:
-Forbidden_VarNames = [
+Forbidden_VariableNames = [
     '_'   , 'DISPLAY', 'HOME' , 'LANG', 'LOGNAME', 'MAIL'  , 'OLDPWD',
     'PATH', 'PWD'    , 'SHELL', 'TERM', 'USER'   , 'VISUAL',
 ]
@@ -449,7 +452,7 @@ class Svinfo:
 
             if opts.include_vars:
                 var_name = opts.transform_var(key)
-                if not var_name in Forbidden_VarNames:
+                if not var_name in Forbidden_VariableNames:
                     dump += "{}={}\n".format(var_name, quoted_path)
 
         if opts.include_aliases:
@@ -542,13 +545,7 @@ def create_parser(short_help=False):
         help="Raccourci désignant un chemin soit local à un un projet, soit dépendant de l'option -L")
 
 
-    # OPTIONS FOR GETTING INFORMATION:
-
-    parser.add_argument(
-        '-i',
-        '--get-svinfo-file',
-        action='store_true',
-        help="Affiche le chemin vers le fichier .svinfo trouvé (ou précisé, cf option -L)")
+    # OPTIONS FOR SETTING CONTEXT:
 
     parser.add_argument(
         '-C',
@@ -561,6 +558,24 @@ def create_parser(short_help=False):
         '--svinfo-path',
         metavar='PATH',
         help="Choisit un fichier svinfo particulier au lieu de chercher dans l'arborescence courante")
+
+    parser.add_argument(
+        '-g',
+        '--global',
+        action='store_true',
+        dest='is_global',
+        help="Choisit le fichier $HOME/.svinfo.global comme fichier svinfo "+
+             "(équivalent de \"-L ~/.svinfo.global\"). Si la variable d'environnement "+
+             "PYSV_GLOBAL_SVINFO existe, utilise cette variable à la place.")
+
+
+    # OPTIONS FOR GETTING INFORMATION:
+
+    parser.add_argument(
+        '-i',
+        '--get-svinfo-file',
+        action='store_true',
+        help="Affiche le chemin vers le fichier .svinfo trouvé (ou précisé, cf option -L)")
 
     parser.add_argument(
         '-l',
@@ -796,7 +811,12 @@ if __name__ == '__main__':
         possibly_create_file = bool(args.add)
 
 
-        svinfo = Svinfo(args.svinfo_path, possibly_create_file)
+        if args.is_global:
+            standard_global_svinfo_path = Path(os.environ['HOME']) / GlobalSvinfoFilename
+            svinfo_path = os.getenv('PYSV_GLOBAL_SVINFO', standard_global_svinfo_path)
+        else:
+            svinfo_path = args.svinfo_path
+        svinfo = Svinfo(svinfo_path, possibly_create_file)
 
 
         if not svinfo.exists:
